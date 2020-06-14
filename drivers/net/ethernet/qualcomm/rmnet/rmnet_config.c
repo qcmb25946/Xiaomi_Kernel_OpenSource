@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only
+<<<<<<< HEAD
 /* Copyright (c) 2013-2019, The Linux Foundation. All rights reserved.
  * Copyright (C) 2020 XiaoMi, Inc.
+=======
+/* Copyright (c) 2013-2020, The Linux Foundation. All rights reserved.
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
  *
  * RMNET configuration engine
  *
@@ -351,7 +355,7 @@ static int rmnet_rtnl_validate(struct nlattr *tb[], struct nlattr *data[],
 
 		if (data[IFLA_RMNET_UL_AGG_PARAMS]) {
 			agg_params = nla_data(data[IFLA_RMNET_UL_AGG_PARAMS]);
-			if (agg_params->agg_time < 3000000)
+			if (agg_params->agg_time < 1000000)
 				return -EINVAL;
 		}
 	}

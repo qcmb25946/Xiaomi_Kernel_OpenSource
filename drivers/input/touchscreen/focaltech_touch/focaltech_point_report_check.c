@@ -1,9 +1,17 @@
+<<<<<<< HEAD
+=======
+// SPDX-License-Identifier: GPL-2.0-only
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 /*
  *
  * FocalTech TouchScreen driver.
  *
+<<<<<<< HEAD
  * Copyright (c) 2010-2017, FocalTech Systems, Ltd., all rights reserved.
  * Copyright (C) 2020 XiaoMi, Inc.
+=======
+ * Copyright (c) 2012-2019, FocalTech Systems, Ltd., all rights reserved.
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -20,6 +28,7 @@
 *
 * File Name: focaltech_point_report_check.c
 *
+<<<<<<< HEAD
 *    Author: WangTao
 *
 *   Created: 2016-11-16
@@ -31,6 +40,18 @@
 * Revision History:
 *        v1.0:
 *            First release. By WangTao 2016-11-16
+=======
+* Author: Focaltech Driver Team
+*
+* Created: 2016-11-16
+*
+* Abstract: point report check function
+*
+* Version: v1.0
+*
+* Revision History:
+*
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 *****************************************************************************/
 
 /*****************************************************************************
@@ -42,7 +63,11 @@
 /*****************************************************************************
 * Private constant and macro definitions using #define
 *****************************************************************************/
+<<<<<<< HEAD
 #define POINT_REPORT_CHECK_WAIT_TIME              200	/* unit:ms */
+=======
+#define POINT_REPORT_CHECK_WAIT_TIME              200    /* unit:ms */
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 
 /*****************************************************************************
 * functions body
@@ -57,18 +82,30 @@
 static void fts_prc_func(struct work_struct *work)
 {
 	struct fts_ts_data *ts_data = container_of(work,
+<<<<<<< HEAD
 						   struct fts_ts_data, prc_work.work);
 	struct input_dev *input_dev = ts_data->input_dev;
 
 #if FTS_MT_PROTOCOL_B_EN
 	u32 finger_count = 0;
+=======
+					struct fts_ts_data, prc_work.work);
+	struct input_dev *input_dev = ts_data->input_dev;
+#if FTS_MT_PROTOCOL_B_EN
+	u32 finger_count = 0;
+	u32 max_touches = fts_data->pdata->max_touch_number;
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 #endif
 
 	FTS_FUNC_ENTER();
 	mutex_lock(&ts_data->report_mutex);
 
 #if FTS_MT_PROTOCOL_B_EN
+<<<<<<< HEAD
 	for (finger_count = 0; finger_count < ts_data->pdata->max_touch_number; finger_count++) {
+=======
+	for (finger_count = 0; finger_count < max_touches; finger_count++) {
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 		input_mt_slot(input_dev, finger_count);
 		input_mt_report_slot_state(input_dev, MT_TOOL_FINGER, false);
 	}
@@ -92,8 +129,14 @@ static void fts_prc_func(struct work_struct *work)
 *****************************************************************************/
 void fts_prc_queue_work(struct fts_ts_data *ts_data)
 {
+<<<<<<< HEAD
 	cancel_delayed_work(&ts_data->prc_work);
 	queue_delayed_work(ts_data->ts_workqueue, &ts_data->prc_work, msecs_to_jiffies(POINT_REPORT_CHECK_WAIT_TIME));
+=======
+	cancel_delayed_work_sync(&ts_data->prc_work);
+	queue_delayed_work(ts_data->ts_workqueue, &ts_data->prc_work,
+			msecs_to_jiffies(POINT_REPORT_CHECK_WAIT_TIME));
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 }
 
 /*****************************************************************************
@@ -133,3 +176,7 @@ int fts_point_report_check_exit(struct fts_ts_data *ts_data)
 	return 0;
 }
 #endif /* FTS_POINT_REPORT_CHECK_EN */
+<<<<<<< HEAD
+=======
+
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d

@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< HEAD
  * Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
  * Copyright (C) 2020 XiaoMi, Inc.
+=======
+ * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
  */
 
 #include <linux/atomic.h>
@@ -280,6 +284,7 @@ static const char *const gpi_cb_event_str[MSM_GPI_QUP_MAX_EVENT] = {
 	[MSM_GPI_QUP_NOTIFY] = "NOTIFY",
 	[MSM_GPI_QUP_ERROR] = "GLOBAL ERROR",
 	[MSM_GPI_QUP_CH_ERROR] = "CHAN ERROR",
+	[MSM_GPI_QUP_FW_ERROR] = "UNHANDLED ERROR",
 	[MSM_GPI_QUP_PENDING_EVENT] = "PENDING EVENT",
 	[MSM_GPI_QUP_EOT_DESC_MISMATCH] = "EOT/DESC MISMATCH",
 	[MSM_GPI_QUP_SW_ERROR] = "SW ERROR",
@@ -582,6 +587,10 @@ struct gpii {
 	struct gpi_reg_table dbg_reg_table;
 	bool reg_table_dump;
 	u32 dbg_gpi_irq_cnt;
+<<<<<<< HEAD
+=======
+	bool unlock_tre_set;
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 };
 
 struct gpi_desc {
@@ -1448,6 +1457,22 @@ static void gpi_process_qup_notif_event(struct gpii_chan *gpii_chan,
 			      client_info->cb_param);
 }
 
+/* free gpi_desc for the specified channel */
+static void gpi_free_chan_desc(struct gpii_chan *gpii_chan)
+{
+	struct virt_dma_desc *vd;
+	struct gpi_desc *gpi_desc;
+	unsigned long flags;
+
+	spin_lock_irqsave(&gpii_chan->vc.lock, flags);
+	vd = vchan_next_desc(&gpii_chan->vc);
+	gpi_desc = to_gpi_desc(vd);
+	list_del(&vd->node);
+	spin_unlock_irqrestore(&gpii_chan->vc.lock, flags);
+	kfree(gpi_desc);
+	gpi_desc = NULL;
+}
+
 /* process DMA Immediate completion data events */
 static void gpi_process_imed_data_event(struct gpii_chan *gpii_chan,
 					struct immediate_data_event *imed_event)
@@ -1460,6 +1485,8 @@ static void gpi_process_imed_data_event(struct gpii_chan *gpii_chan,
 		(ch_ring->el_size * imed_event->tre_index);
 	struct msm_gpi_dma_async_tx_cb_param *tx_cb_param;
 	unsigned long flags;
+	u32 chid;
+	struct gpii_chan *gpii_tx_chan = &gpii->gpii_chan[GPI_TX_CHAN];
 
 	/*
 	 * If channel not active don't process event but let
@@ -1526,6 +1553,38 @@ static void gpi_process_imed_data_event(struct gpii_chan *gpii_chan,
 	/* make sure rp updates are immediately visible to all cores */
 	smp_wmb();
 
+<<<<<<< HEAD
+=======
+	/*
+	 * If unlock tre is present, don't send transfer callback on
+	 * on IEOT, wait for unlock IEOB. Free the respective channel
+	 * descriptors.
+	 * If unlock is not present, IEOB indicates freeing the descriptor
+	 * and IEOT indicates channel transfer completion.
+	 */
+	chid = imed_event->chid;
+	if (gpii->unlock_tre_set) {
+		if (chid == GPI_RX_CHAN) {
+			if (imed_event->code == MSM_GPI_TCE_EOT)
+				goto gpi_free_desc;
+			else if (imed_event->code == MSM_GPI_TCE_UNEXP_ERR)
+				/*
+				 * In case of an error in a read transfer on a
+				 * shared se, unlock tre will not be processed
+				 * as channels go to bad state so tx desc should
+				 * be freed manually.
+				 */
+				gpi_free_chan_desc(gpii_tx_chan);
+			else
+				return;
+		} else if (imed_event->code == MSM_GPI_TCE_EOT) {
+			return;
+		}
+	} else if (imed_event->code == MSM_GPI_TCE_EOB) {
+		goto gpi_free_desc;
+	}
+
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 	tx_cb_param = vd->tx.callback_param;
 	if (vd->tx.callback && tx_cb_param) {
 		struct msm_gpi_tre *imed_tre = &tx_cb_param->imed_tre;
@@ -1541,7 +1600,13 @@ static void gpi_process_imed_data_event(struct gpii_chan *gpii_chan,
 		tx_cb_param->status = imed_event->status;
 		vd->tx.callback(tx_cb_param);
 	}
+<<<<<<< HEAD
 	kfree(gpi_desc);
+=======
+
+gpi_free_desc:
+	gpi_free_chan_desc(gpii_chan);
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 }
 
 /* processing transfer completion events */
@@ -1555,6 +1620,8 @@ static void gpi_process_xfer_compl_event(struct gpii_chan *gpii_chan,
 	struct msm_gpi_dma_async_tx_cb_param *tx_cb_param;
 	struct gpi_desc *gpi_desc;
 	unsigned long flags;
+	u32 chid;
+	struct gpii_chan *gpii_tx_chan = &gpii->gpii_chan[GPI_TX_CHAN];
 
 	/* only process events on active channel */
 	if (unlikely(gpii_chan->pm_state != ACTIVE_STATE)) {
@@ -1613,6 +1680,38 @@ static void gpi_process_xfer_compl_event(struct gpii_chan *gpii_chan,
 	/* update must be visible to other cores */
 	smp_wmb();
 
+<<<<<<< HEAD
+=======
+	/*
+	 * If unlock tre is present, don't send transfer callback on
+	 * on IEOT, wait for unlock IEOB. Free the respective channel
+	 * descriptors.
+	 * If unlock is not present, IEOB indicates freeing the descriptor
+	 * and IEOT indicates channel transfer completion.
+	 */
+	chid = compl_event->chid;
+	if (gpii->unlock_tre_set) {
+		if (chid == GPI_RX_CHAN) {
+			if (compl_event->code == MSM_GPI_TCE_EOT)
+				goto gpi_free_desc;
+			else if (compl_event->code == MSM_GPI_TCE_UNEXP_ERR)
+				/*
+				 * In case of an error in a read transfer on a
+				 * shared se, unlock tre will not be processed
+				 * as channels go to bad state so tx desc should
+				 * be freed manually.
+				 */
+				gpi_free_chan_desc(gpii_tx_chan);
+			else
+				return;
+		} else if (compl_event->code == MSM_GPI_TCE_EOT) {
+			return;
+		}
+	} else if (compl_event->code == MSM_GPI_TCE_EOB) {
+		goto gpi_free_desc;
+	}
+
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 	tx_cb_param = vd->tx.callback_param;
 	if (vd->tx.callback && tx_cb_param) {
 		GPII_VERB(gpii, gpii_chan->chid,
@@ -1624,7 +1723,14 @@ static void gpi_process_xfer_compl_event(struct gpii_chan *gpii_chan,
 		tx_cb_param->status = compl_event->status;
 		vd->tx.callback(tx_cb_param);
 	}
+<<<<<<< HEAD
 	kfree(gpi_desc);
+=======
+
+gpi_free_desc:
+	gpi_free_chan_desc(gpii_chan);
+
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 }
 
 /* process all events */
@@ -2182,6 +2288,10 @@ int gpi_terminate_all(struct dma_chan *chan)
 		if (ret) {
 			GPII_ERR(gpii, gpii_chan->chid,
 				 "Error resetting channel ret:%d\n", ret);
+			if (!gpii->reg_table_dump) {
+				gpi_dump_debug_reg(gpii);
+				gpii->reg_table_dump = true;
+			}
 			goto terminate_exit;
 		}
 
@@ -2320,6 +2430,10 @@ struct dma_async_tx_descriptor *gpi_prep_slave_sg(struct dma_chan *chan,
 	void *tre, *wp = NULL;
 	const gfp_t gfp = GFP_ATOMIC;
 	struct gpi_desc *gpi_desc;
+<<<<<<< HEAD
+=======
+	u32 tre_type;
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 
 	GPII_VERB(gpii, gpii_chan->chid, "enter\n");
 
@@ -2353,8 +2467,23 @@ struct dma_async_tx_descriptor *gpi_prep_slave_sg(struct dma_chan *chan,
 	}
 
 	/* copy each tre into transfer ring */
+<<<<<<< HEAD
 	for_each_sg(sgl, sg, sg_len, i)
 		for (j = 0, tre = sg_virt(sg); j < sg->length;
+=======
+	for_each_sg(sgl, sg, sg_len, i) {
+		tre = sg_virt(sg);
+
+		/* Check if last tre is an unlock tre */
+		if (i == sg_len - 1) {
+			tre_type =
+			MSM_GPI_TRE_TYPE(((struct msm_gpi_tre *)tre));
+			gpii->unlock_tre_set =
+			tre_type == MSM_GPI_TRE_UNLOCK ? true : false;
+		}
+
+		for (j = 0; j < sg->length;
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 		     j += ch_ring->el_size, tre += ch_ring->el_size)
 			gpi_queue_xfer(gpii, gpii_chan, tre, &wp);
 

@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< HEAD
  * Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
  * Copyright (C) 2020 XiaoMi, Inc.
+=======
+ * Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
  */
 
 #include <linux/thermal.h>
@@ -152,7 +156,32 @@ static const struct virtual_sensor_data qti_virtual_sensors[] = {
 				"cpuss-1-usr"},
 		.logic = VIRT_MAXIMUM,
 	},
+<<<<<<< HEAD
 
+=======
+	{
+		.virt_zone_name = "hepta-cpu-max-step",
+		.num_sensors = 7,
+		.sensor_names = {"cpu-1-0-usr",
+				"cpu-1-1-usr",
+				"cpu-1-2-usr",
+				"cpu-1-3-usr",
+				"cpuss-0-usr",
+				"cpuss-1-usr",
+				"cpuss-2-usr"},
+		.logic = VIRT_MAXIMUM,
+	},
+	{
+		.virt_zone_name = "gpu-skin-avg-step",
+		.num_sensors = 2,
+		.sensor_names = {"skin-msm-therm-usr",
+				"gpuss-0-usr"},
+		.logic = VIRT_WEIGHTED_AVG,
+		.coefficient_ct = 2,
+		.coefficients = {30, 70},
+		.avg_denominator = 100,
+	},
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 };
 
 int qti_virtual_sensor_register(struct device *dev)

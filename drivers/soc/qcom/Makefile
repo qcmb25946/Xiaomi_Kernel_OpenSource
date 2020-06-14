@@ -24,6 +24,7 @@ obj-$(CONFIG_QCOM_IPCC) += qcom_ipcc.o
 obj-$(CONFIG_QCOM_LLCC) += llcc-slice.o
 obj-$(CONFIG_QCOM_KONA_LLCC) += llcc-kona.o
 obj-$(CONFIG_QCOM_LITO_LLCC) += llcc-lito.o
+obj-$(CONFIG_QCOM_LAGOON_LLCC) += llcc-lagoon.o
 obj-$(CONFIG_QCOM_LLCC_PERFMON) += llcc_perfmon.o
 obj-$(CONFIG_QCOM_APR) += apr.o
 obj-$(CONFIG_QCOM_SECURE_BUFFER) += secure_buffer.o
@@ -96,4 +97,9 @@ obj-$(CONFIG_QCOM_CDSP_RM) += cdsprm.o
 obj-$(CONFIG_ICNSS) += icnss.o
 obj-$(CONFIG_ICNSS_QMI) += icnss_qmi.o wlan_firmware_service_v01.o
 obj-$(CONFIG_RMNET_CTL) += rmnet_ctl/
+<<<<<<< HEAD
 obj-$(CONFIG_DEBUG_POLICY_STATUS) += dp_status.o
+=======
+obj-$(CONFIG_QCOM_CX_IPEAK) += cx_ipeak.o
+obj-$(CONFIG_ICNSS2) += icnss2/
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d

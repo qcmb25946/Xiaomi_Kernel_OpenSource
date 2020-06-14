@@ -1693,10 +1693,14 @@ cont:
 		if (!page)
 			continue;
 
+<<<<<<< HEAD
 		if (page_mapcount(page) != 1)
 			continue;
 
 		if (isolate_lru_page(page))
+=======
+		if (isolate_lru_page(compound_head(page)))
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 			continue;
 
 		/* MADV_FREE clears pte dirty bit and then marks the page

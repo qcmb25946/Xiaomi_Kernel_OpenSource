@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< HEAD
  * Copyright (c) 2016-2019, The Linux Foundation. All rights reserved.
  * Copyright (C) 2020 XiaoMi, Inc.
+=======
+ * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
  */
 
 #include <linux/module.h>
@@ -32,6 +36,7 @@
 #define BUS_INTERVAL_FULL_SPEED 1000 /* in us */
 #define BUS_INTERVAL_HIGHSPEED_AND_ABOVE 125 /* in us */
 #define MAX_BINTERVAL_ISOC_EP 16
+#define DEV_RELEASE_WAIT_TIMEOUT 10000 /* in ms */
 
 #define SND_PCM_CARD_NUM_MASK 0xffff0000
 #define SND_PCM_DEV_NUM_MASK 0xff00
@@ -893,12 +898,14 @@ static void uaudio_disconnect_cb(struct snd_usb_audio *chip)
 			return;
 		}
 
-		ret = wait_event_interruptible(dev->disconnect_wq,
-				!atomic_read(&dev->in_use));
-		if (ret < 0) {
-			uaudio_dbg("failed with ret %d\n", ret);
-			return;
-		}
+		ret = wait_event_interruptible_timeout(dev->disconnect_wq,
+				!atomic_read(&dev->in_use),
+				msecs_to_jiffies(DEV_RELEASE_WAIT_TIMEOUT));
+		if (!ret)
+			uaudio_err("timeout while waiting for dev_release\n");
+		else if (ret < 0)
+			uaudio_err("failed with ret %d\n", ret);
+
 		mutex_lock(&chip->dev_lock);
 	}
 
@@ -1157,13 +1164,17 @@ static void handle_uaudio_stream_req(struct qmi_handle *handle,
 
 response:
 	if (!req_msg->enable && ret != -EINVAL) {
-		if (info_idx >= 0) {
-			mutex_lock(&chip->dev_lock);
-			info = &uadev[pcm_card_num].info[info_idx];
-			uaudio_dev_intf_cleanup(uadev[pcm_card_num].udev, info);
-			uaudio_dbg("release resources: intf# %d card# %d\n",
-					subs->interface, pcm_card_num);
-			mutex_unlock(&chip->dev_lock);
+		if (ret != -ENODEV) {
+			if (info_idx >= 0) {
+				mutex_lock(&chip->dev_lock);
+				info = &uadev[pcm_card_num].info[info_idx];
+				uaudio_dev_intf_cleanup(
+						uadev[pcm_card_num].udev,
+						info);
+				uaudio_dbg("release resources: intf# %d card# %d\n",
+						subs->interface, pcm_card_num);
+				mutex_unlock(&chip->dev_lock);
+			}
 		}
 		if (atomic_read(&uadev[pcm_card_num].in_use))
 			kref_put(&uadev[pcm_card_num].kref,

@@ -1,7 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
+<<<<<<< HEAD
  * Copyright (c) 2019, The Linux Foundation. All rights reserved.
  * Copyright (C) 2020 XiaoMi, Inc.
+=======
+ * Copyright (c) 2019-2020, The Linux Foundation. All rights reserved.
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
  */
 
 #ifndef _DT_BINDINGS_CLK_QCOM_GCC_LAGOON_H
@@ -151,6 +155,12 @@
 #define GCC_AGGRE_UFS_PHY_AXI_HW_CTL_CLK	140
 #define GCC_UFS_PHY_UNIPRO_CORE_HW_CTL_CLK	141
 #define GCC_UFS_PHY_ICE_CORE_HW_CTL_CLK		142
+<<<<<<< HEAD
+=======
+#define GCC_RX5_PCIE_CLKREF_CLK			143
+#define GCC_GPU_GPLL0_MAIN_DIV_CLK_SRC		144
+#define GCC_NPU_PLL0_MAIN_DIV_CLK_SRC		145
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 
 /* GCC resets */
 #define GCC_QUSB2PHY_PRIM_BCR			0

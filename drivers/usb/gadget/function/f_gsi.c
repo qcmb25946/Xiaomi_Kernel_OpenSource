@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< HEAD
  * Copyright (c) 2015-2019, The Linux Foundation. All rights reserved.
  * Copyright (C) 2020 XiaoMi, Inc.
+=======
+ * Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
  */
 
 #include <linux/module.h>
@@ -816,6 +820,16 @@ static int gsi_ep_enable(struct f_gsi *gsi)
 		log_event_dbg("%s: Enable OUT ep", __func__);
 		usb_gsi_ep_op(gsi->d_port.out_ep,
 				&gsi->d_port.out_request, GSI_EP_OP_CONFIG);
+<<<<<<< HEAD
+=======
+		if (ret) {
+			if (gsi->d_port.in_ep)
+				usb_gsi_ep_op(gsi->d_port.in_ep,
+					&gsi->d_port.in_request,
+					GSI_EP_OP_DISABLE);
+			return ret;
+		}
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 	}
 
 	return 0;

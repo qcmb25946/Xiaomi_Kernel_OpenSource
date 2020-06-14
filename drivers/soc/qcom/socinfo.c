@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< HEAD
  * Copyright (c) 2009-2019, The Linux Foundation. All rights reserved.
  * Copyright (C) 2020 XiaoMi, Inc.
+=======
+ * Copyright (c) 2009-2020, The Linux Foundation. All rights reserved.
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
  */
 
 #define pr_fmt(fmt) "%s: " fmt, __func__
@@ -325,7 +329,21 @@ static struct msm_soc_info cpu_of_id[] = {
 
 	/* Bengal ID */
 	[417] = {MSM_CPU_BENGAL, "BENGAL"},
+	[444] = {MSM_CPU_BENGAL, "BENGAL"},
 
+<<<<<<< HEAD
+=======
+	/* Lagoon ID */
+	[434] = {MSM_CPU_LAGOON, "LAGOON"},
+	[459] = {MSM_CPU_LAGOON, "LAGOON"},
+
+	/* Bengalp ID */
+	[445] = {MSM_CPU_BENGALP, "BENGALP"},
+
+	/* Scuba ID */
+	[441] = {MSM_CPU_SCUBA, "SCUBA"},
+
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 	/* Uninitialized IDs are not known to run Linux.
 	 * MSM_CPU_UNKNOWN is set to 0 to ensure these IDs are
 	 * considered as unknown CPU.
@@ -1197,6 +1215,21 @@ static void * __init setup_dummy_socinfo(void)
 		dummy_socinfo.id = 417;
 		strlcpy(dummy_socinfo.build_id, "bengal - ",
 		sizeof(dummy_socinfo.build_id));
+<<<<<<< HEAD
+=======
+	} else if (early_machine_is_bengalp()) {
+		dummy_socinfo.id = 445;
+		strlcpy(dummy_socinfo.build_id, "bengalp - ",
+		sizeof(dummy_socinfo.build_id));
+	} else if (early_machine_is_lagoon()) {
+		dummy_socinfo.id = 434;
+		strlcpy(dummy_socinfo.build_id, "lagoon - ",
+		sizeof(dummy_socinfo.build_id));
+	} else if (early_machine_is_scuba()) {
+		dummy_socinfo.id = 441;
+		strlcpy(dummy_socinfo.build_id, "scuba - ",
+		sizeof(dummy_socinfo.build_id));
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
 	} else if (early_machine_is_sdmshrike()) {
 		dummy_socinfo.id = 340;
 		strlcpy(dummy_socinfo.build_id, "sdmshrike - ",

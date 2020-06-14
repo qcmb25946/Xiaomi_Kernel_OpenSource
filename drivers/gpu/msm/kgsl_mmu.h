@@ -1,7 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
+<<<<<<< HEAD
  * Copyright (c) 2002,2007-2019, The Linux Foundation. All rights reserved.
  * Copyright (C) 2020 XiaoMi, Inc.
+=======
+ * Copyright (c) 2002,2007-2020, The Linux Foundation. All rights reserved.
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
  */
 #ifndef __KGSL_MMU_H
 #define __KGSL_MMU_H
@@ -136,6 +140,8 @@ struct kgsl_mmu_pt_ops {
 #define KGSL_MMU_NEED_GUARD_PAGE BIT(9)
 /* The device supports IO coherency */
 #define KGSL_MMU_IO_COHERENT BIT(10)
+/* The device supports aperture programming from secure world */
+#define KGSL_MMU_SMMU_APERTURE BIT(11)
 
 /**
  * struct kgsl_mmu - Master definition for KGSL MMU devices

@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
+<<<<<<< HEAD
  * Copyright (c) 2015-2019, The Linux Foundation. All rights reserved.
  * Copyright (C) 2020 XiaoMi, Inc.
+=======
+ * Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
  */
 
 /*
@@ -240,6 +244,8 @@ struct spcom_device {
 /* Device Driver State */
 static struct spcom_device *spcom_dev;
 
+/* error registers shared with SPU */
+static u32 spcom_rmb_error_reg_addr;
 /* Physical address of SP2SOC RMB shared register */
 /* SP_SCSR_RMB_SP2SOC_IRQ_SET_ADDR */
 static u32 spcom_sp2soc_rmb_reg_addr;
@@ -595,15 +601,32 @@ static int spcom_handle_create_channel_command(void *cmd_buf, int cmd_size)
  */
 static int spcom_local_powerup(const struct subsys_desc *subsys)
 {
-	void __iomem *regs;
+	void __iomem *regs, *err_regs;
+	u32 pbl_status_reg = 0;
 
-	regs = ioremap_nocache(spcom_sp2soc_rmb_reg_addr, sizeof(u32));
-	if (!regs)
+	err_regs = ioremap_nocache(spcom_rmb_error_reg_addr, sizeof(u32));
+	if (!err_regs)
 		return -ENOMEM;
 
-	writel_relaxed(spcom_sp2soc_pbldone_mask|spcom_sp2soc_initdone_mask,
-		regs);
-	iounmap(regs);
+	pbl_status_reg = readl_relaxed(err_regs);
+
+	if (pbl_status_reg == 0) {
+		regs = ioremap_nocache(spcom_sp2soc_rmb_reg_addr, sizeof(u32));
+		if (!regs) {
+			iounmap(err_regs);
+			return -ENOMEM;
+		}
+
+		writel_relaxed(
+			spcom_sp2soc_pbldone_mask|spcom_sp2soc_initdone_mask,
+			regs);
+		iounmap(regs);
+	} else {
+		pr_err("PBL has returned an error= 0x%x. Not sending sw_init_done\n",
+			pbl_status_reg);
+	}
+
+	iounmap(err_regs);
 	pr_debug("spcom local powerup - SPSS cold boot\n");
 	return 0;
 }
@@ -1242,6 +1265,13 @@ static int spcom_handle_write(struct spcom_channel *ch,
 		return -EINVAL;
 	}
 
+	if (cmd_id == SPCOM_CMD_SEND || cmd_id == SPCOM_CMD_SEND_MODIFIED) {
+		if (!spcom_is_channel_connected(ch)) {
+			pr_err("ch [%s] remote side not connected\n", ch->name);
+			return -ENOTCONN;
+		}
+	}
+
 	switch (cmd_id) {
 	case SPCOM_CMD_SEND:
 		if (ch->is_sharable) {
@@ -1699,12 +1729,6 @@ static ssize_t spcom_device_write(struct file *filp,
 			return -EINVAL;
 		}
 		pr_debug("control device - no channel context\n");
-	} else {
-		/* Check if remote side connect */
-		if (!spcom_is_channel_connected(ch)) {
-			pr_err("ch [%s] remote side not connect\n", ch->name);
-			return -ENOTCONN;
-		}
 	}
 	buf_size = size; /* explicit casting size_t to int */
 	buf = kzalloc(size, GFP_KERNEL);
@@ -2114,6 +2138,13 @@ static int spcom_parse_dt(struct device_node *np)
 	u32 soc2sp_rmb_sp_ssr_bit = 0;
 
 	/* Read SP HLOS SCSR RMB IRQ register address */
+	ret = of_property_read_u32(np, "qcom,spcom-rmb-err-reg-addr",
+		&spcom_rmb_error_reg_addr);
+	if (ret < 0) {
+		pr_err("can't get rmb error reg addr\n");
+		return ret;
+	}
+
 	ret = of_property_read_u32(np, "qcom,spcom-sp2soc-rmb-reg-addr",
 		&spcom_sp2soc_rmb_reg_addr);
 	if (ret < 0) {

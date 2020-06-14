@@ -1,7 +1,11 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
+<<<<<<< HEAD
  * Copyright (c) 2010-2018, The Linux Foundation. All rights reserved.
  * Copyright (C) 2020 XiaoMi, Inc.
+=======
+ * Copyright (c) 2010-2020, The Linux Foundation. All rights reserved.
+>>>>>>> 42446a01b99d3dc7629a504d144b9e6bc438280d
  */
 
 #ifndef __MACH_SCM_H
@@ -104,7 +108,6 @@ extern int scm_restore_sec_cfg(u32 device_id, u32 spare, int *scm_ret);
 extern u32 scm_io_read(phys_addr_t address);
 extern int scm_io_write(phys_addr_t address, u32 val);
 extern bool scm_is_secure_device(void);
-extern int scm_enable_mem_protection(void);
 extern int scm_get_feat_version(u32 feat);
 extern bool is_scm_armv8(void);
 
@@ -167,9 +170,5 @@ static inline bool scm_is_secure_device(void)
 	return false;
 }
 
-static inline int scm_enable_mem_protection(void)
-{
-	return 0;
-}
 #endif
 #endif
